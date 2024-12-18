@@ -69,6 +69,7 @@ val_map_pt2 = {
     "]": 5,
 }
 
+
 def parse_input_pt2(in_file):
     with open(in_file, "r") as fh:
         in_str = fh.read()
@@ -101,26 +102,65 @@ def part_2(wmap, dirs):
             wmap[pos] = 0
             wmap[new_pos] = 3
             pos = new_pos
-        elif wmap[new_pos] == 1:
+        elif wmap[new_pos] == 4 or wmap[new_pos] == 5:
             # There's a box, move along the line until we hit a space or a wall.
-            line_end = new_pos
-            while wmap[line_end] == 1:
-                line_end = (line_end[0] + move[0], line_end[1] + move[1])
-            if wmap[line_end] == 2:
-                # We hit a wall while pushing so move on
-                continue
-            elif wmap[line_end] == 0:
+            if abs(move[1]) == 1:
+                line_end = new_pos[1]
+                while wmap[pos[0], line_end] == 4 or wmap[pos[0], line_end] == 5:
+                    line_end += move[1]
+                if wmap[pos[0], line_end] == 2:
+                    # We hit a wall while pushing so do nothing
+                    continue
                 # We can push a box into an empty space
-                wmap[line_end] = 1
-                wmap[new_pos] = 3
+                if move[1] == 1:
+                    wmap[pos[0], pos[1] + 1:line_end + 1] = wmap[pos[0], pos[1]:line_end]
+                else:
+                    wmap[pos[0], line_end:pos[1]] = wmap[pos[0], line_end + 1:pos[1] + 1]
                 wmap[pos] = 0
                 pos = new_pos
+            else:
+                print(wmap)
+                row = pos[0]
+                move_positions = [[pos[1]]]
+                blocked = False
+                while True:
+                    new_mvs = []
+                    row += move[0]
+                    for i in move_positions[-1]:
+                        if wmap[row, i] == 4:
+                            new_mvs.append(i)
+                            new_mvs.append(i + 1)
+                        elif wmap[row, i] == 5:
+                            new_mvs.append(i)
+                            new_mvs.append(i - 1)
+                        elif wmap[row, i] == 2:
+                            blocked = True
+                            break
 
-    return (np.where(wmap == 1)[0] * 100 + np.where(wmap == 1)[1]).sum()
+                    if blocked:
+                        break
+                    elif new_mvs:
+                        move_positions.append(set(new_mvs))
+                    else:
+                        # we're movin
+                        while row != pos[0]:
+                            spaces = move_positions.pop(-1)
+                            for col in spaces:
+                                wmap[row, col] = wmap[row-move[0], col]
+                                wmap[row - move[0], col] = 0
+                            row -= move[0]
+                        pos = new_pos
+                        break
+        else:
+            print(wmap[new_pos], wmap)
+            raise NotImplementedError("Should never get here")
 
-in_file = "AoC_input/day15_ex2.txt"
-#wmap, dirs = parse_input(in_file)
-#print("Part.1: ", part_1(wmap, dirs))
+    return (np.where(wmap == 4)[0] * 100 + np.where(wmap == 4)[1]).sum()
+
+
+in_file = "AoC_input/day15.txt"
+# wmap, dirs = parse_input(in_file)
+# print("Part.1: ", part_1(wmap, dirs))
 
 wmap, dirs = parse_input_pt2(in_file)
 print("Part.2: ", part_2(wmap, dirs))
