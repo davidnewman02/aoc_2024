@@ -119,7 +119,6 @@ def part_2(wmap, dirs):
                 wmap[pos] = 0
                 pos = new_pos
             else:
-                print(wmap)
                 row = pos[0]
                 move_positions = [[pos[1]]]
                 blocked = False
@@ -159,8 +158,8 @@ def part_2(wmap, dirs):
 
 
 in_file = "AoC_input/day15.txt"
-# wmap, dirs = parse_input(in_file)
-# print("Part.1: ", part_1(wmap, dirs))
+wmap, dirs = parse_input(in_file)
+print("Part.1: ", part_1(wmap, dirs))
 
 wmap, dirs = parse_input_pt2(in_file)
 print("Part.2: ", part_2(wmap, dirs))
